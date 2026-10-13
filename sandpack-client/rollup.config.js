@@ -54,6 +54,13 @@ const configs = [
           global: "globalThis",
           "process.env.CODESANDBOX_ENV": `"${process.env.CODESANDBOX_ENV}"`,
           "process.env.PACKAGE_VERSION": `"${pkg.version}"`,
+          // AINative fork: bake the self-hosted bundler origin in at build
+          // time. Substitute the `undefined` keyword (NOT the string
+          // "undefined", which is truthy) when unset, so the in-source
+          // AINATIVE_DEFAULT_BUNDLER_URL fallback takes over.
+          "process.env.AINATIVE_BUNDLER_URL": process.env.AINATIVE_BUNDLER_URL
+            ? JSON.stringify(process.env.AINATIVE_BUNDLER_URL)
+            : "undefined",
         },
       }),
     ],

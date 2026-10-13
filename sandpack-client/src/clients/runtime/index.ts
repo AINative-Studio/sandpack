@@ -31,13 +31,32 @@ import { getExtension, getTemplate } from "./utils";
 
 const SUFFIX_PLACEHOLDER = "-{{suffix}}";
 
+/**
+ * AINative fork: the production bundler origin points at AINative's own
+ * self-hosted sandpack bundler instead of CodeSandbox's hosted origin.
+ *
+ * Unlike CodeSandbox's hosted bundler — which published one subdomain per
+ * client version, prefixing the host with the dash-separated package version —
+ * AINative runs a single deployment, so there is no version prefix in the host
+ * and `process.env.PACKAGE_VERSION` is no longer read here. `SUFFIX_PLACEHOLDER`
+ * is still carried in the template because `createBundlerURL()` substitutes it
+ * for the service-worker subdomain (`experimental_enableServiceWorker`) and
+ * strips it otherwise; that logic is deliberately left untouched.
+ *
+ * The origin is baked in at build time from `AINATIVE_BUNDLER_URL` (see the
+ * `@rollup/plugin-replace` values in `rollup.config.js`), so a new deployment
+ * host only needs a rebuild, not a code change. The literal below is the
+ * fallback default when that variable is unset at build time.
+ *
+ * Consumers can still override per-client at runtime via
+ * `ClientOptions.bundlerURL`, which short-circuits everything here.
+ */
+const AINATIVE_DEFAULT_BUNDLER_URL = `https://sandpack${SUFFIX_PLACEHOLDER}.ainative.studio/`;
+
 const BUNDLER_URL =
   process.env.CODESANDBOX_ENV === "development"
     ? "http://localhost:3000/"
-    : `https://${process.env.PACKAGE_VERSION?.replace(
-        /\./g,
-        "-"
-      )}${SUFFIX_PLACEHOLDER}-sandpack.codesandbox.io/`;
+    : process.env.AINATIVE_BUNDLER_URL || AINATIVE_DEFAULT_BUNDLER_URL;
 
 export class SandpackRuntime extends SandpackClient {
   fileResolverProtocol?: Protocol;
