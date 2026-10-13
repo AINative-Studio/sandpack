@@ -69,6 +69,10 @@
     "*": "prettier -u --write",
     "*.{js,jsx,ts,tsx}": "eslint --cache --fix"
   },
+  "//resolutions": "AINative fork: sandpack-client is published as @ainative/sandpack-client, but sandpack-react and the website workspaces still import it by its upstream name. Alias the upstream specifier to the local workspace so the monorepo keeps linking locally instead of pulling @codesandbox/sandpack-client from npm. Issue #1072 is scoped to sandpack-client only; renaming sandpack-react's imports is deliberately out of scope.",
+  "resolutions": {
+    "@codesandbox/sandpack-client": "link:./sandpack-client"
+  },
   "dependencies": {
     "eslint-plugin-flowtype": "^8.0.3"
   }
